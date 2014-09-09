@@ -10,18 +10,37 @@ AUTH_USER_MODEL = getattr(settings, 'AUTH_USER_MODEL', 'auth.User')
 
 # Django 1.5+ compatibility
 if django.VERSION >= (1, 5):
-    AUTH_USER_MODEL = settings.AUTH_USER_MODEL
-    try:
-        from django.contrib.auth import get_user_model
-        User = lazy(get_user_model, AUTH_USER_MODEL)
-        username_field = lazy(lambda: User.USERNAME_FIELD, str)
-    except ImproperlyConfigured:
-        # The the users model might not be read yet.
-        # This can happen is when setting up the create_api_key signal, in your
-        # custom user module.
-        User = None
-        username_field = None
+    def get_user_model():
+        from django.contrib.auth import get_user_model as django_get_user_model
+
+        return django_get_user_model()
+
+    def get_username_field():
+        return get_user_model().USERNAME_FIELD
 else:
-    from django.contrib.auth.models import User
-    AUTH_USER_MODEL = 'auth.User'
-    username_field = 'username'
+    def get_user_model():
+        from django.contrib.auth.models import User
+
+        return User
+
+    def get_username_field():
+        return 'username'
+
+
+
+# if django.VERSION >= (1, 5):
+#     AUTH_USER_MODEL = settings.AUTH_USER_MODEL
+#     try:
+#         from django.contrib.auth import get_user_model
+#         User = lazy(get_user_model, AUTH_USER_MODEL)
+#         username_field = lazy(lambda: User.USERNAME_FIELD, str)
+#     except ImproperlyConfigured:
+#         # The the users model might not be read yet.
+#         # This can happen is when setting up the create_api_key signal, in your
+#         # custom user module.
+#         User = None
+#         username_field = None
+# else:
+#     from django.contrib.auth.models import User
+#     AUTH_USER_MODEL = 'auth.User'
+#     username_field = 'username'

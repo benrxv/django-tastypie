@@ -190,10 +190,10 @@ class ApiKeyAuthentication(Authentication):
             return self._unauthorized()
 
         username_field = 'username'
-        User = tastypie.compat.User
+        User = tastypie.compat.get_user_model()
 
         try:
-            lookup_kwargs = {username_field: username}
+            lookup_kwargs = {tastypie.compat.get_username_field(): username}
             user = User.objects.get(**lookup_kwargs)
         except (User.DoesNotExist, User.MultipleObjectsReturned):
             return self._unauthorized()
@@ -370,7 +370,7 @@ class DigestAuthentication(Authentication):
 
     def get_user(self, username):
         username_field = 'username'
-        User = tastypie.compat.User
+        User = tastypie.compat.get_user_model()
 
         try:
             lookup_kwargs = {username_field: username}
